@@ -1,5 +1,5 @@
 import tantivy
-
+import os
 # 1. Định nghĩa Schema (Cấu trúc của các trường văn bản)
 # stored=True nghĩa là lưu lại text gốc để có thể in ra sau khi tìm thấy
 schema_builder = tantivy.SchemaBuilder()
@@ -7,9 +7,9 @@ schema_builder.add_text_field("symbol", stored=True)
 schema_builder.add_text_field("body", stored=True)
 schema_builder.add_text_field("summary", stored=True)
 schema = schema_builder.build()
-
+os.makedirs("tanvity_storage", exist_ok= True)
 # 2. Khởi tạo Index (Lưu tạm trên RAM để test)
-index = tantivy.Index(schema)
+index = tantivy.Index(schema, path = "tanvity_storage")
 writer = index.writer()
 
 print("Đang nạp dữ liệu vào BM25 Index...\n")

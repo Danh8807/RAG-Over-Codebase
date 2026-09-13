@@ -9,3 +9,7 @@ __pycache__/
 # Database
 qdrant_storage/
 kuzu_db/
+
+qdrant_storage/
+tantivy_storage/
+tanvity_storage/
