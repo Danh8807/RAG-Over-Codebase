@@ -19,7 +19,7 @@ class RAGAgent:
 """
 
 tree = parser.parse(sample_code)
-root_node = tree.root_node
+root_node = tree.root_node 
 
 print("=== TRÍCH XUẤT NỘI DUNG CODE TỪ AST ===\n")
 
