@@ -92,20 +92,25 @@ def search_codebase(user_query):
 
     print("🏆 KẾT QUẢ RERANKING VÀ ĐỒ THỊ (FULL CONTEXT):")
     # Chỉ lấy Top 2 kết quả tốt nhất để phân tích sâu
+    context_text = ""
     for i, res in enumerate(final_results[:2], 1):
         payload = res['payload']
         symbol_name = payload['symbol']
+        # D. KÉO NGỮ CẢNH ĐỒ THỊ TỪ NEO4J
+        dependencies = get_function_dependencies(symbol_name)
+        deps_str = ', '.join(dependencies) if dependencies else 'Không có'
         
+        # Vẫn in ra Terminal cho bạn xem như cũ
         print(f" {i}. Hàm: [{symbol_name}] - File: {payload.get('path', 'N/A')}")
         print(f"    - Tìm thấy bởi: {res['found_in']} (Điểm: {res['score']:.4f})")
         print(f"    - Tóm tắt:      {payload['summary']}")
+        print(f"    🔗 [Neo4j Graph] Phụ thuộc: {deps_str}\n")
         
-        # D. KÉO NGỮ CẢNH ĐỒ THỊ TỪ NEO4J
-        dependencies = get_function_dependencies(symbol_name)
-        if dependencies:
-            print(f"    🔗 [Neo4j Graph] Hàm này phụ thuộc vào: {', '.join(dependencies)}\n")
-        else:
-            print(f"    🔗 [Neo4j Graph] Hàm này hoạt động độc lập.\n")
+        # 2. Đóng gói dữ liệu vào chuỗi Context
+        context_text += f"Hàm: {symbol_name}\nFile: {payload.get('path', 'N/A')}\nTóm tắt: {payload['summary']}\nCác hàm được gọi bên trong: {deps_str}\n\n"
+        
+    # 3. Trả về toàn bộ chuỗi để generator.py sử dụng
+    return context_text
 
 # ==========================================
 # 4. CHẠY THỬ
@@ -114,5 +119,6 @@ if __name__ == "__main__":
     try:
         search_codebase("calculate the total sum and product")
     finally:
+        # Đóng Database an toàn
         qdrant.close()
         neo4j_driver.close()
